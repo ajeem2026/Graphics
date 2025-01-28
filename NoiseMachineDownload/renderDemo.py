@@ -165,7 +165,7 @@ class NoiseRenderer(ProgressiveRenderer):
             lambda x, y: NoisePatterns.getInstance().cloudsTiled(x, y, 3, 3),
             lambda x, y: NoisePatterns.getInstance().marble(x, y, noiseStrength=0),
             lambda x, y: NoisePatterns.getInstance().wood(x, y, noiseStrength=0 ),
-            lambda x, y: NoisePatterns.getInstance().fire(x, y,noiseStrength=0)
+            lambda x, y: NoisePatterns.getInstance().fire(x, y,noiseStrength=0.6)
         ]
 
 
@@ -205,7 +205,7 @@ class NoiseRenderer(ProgressiveRenderer):
 if __name__ == '__main__':
     try:
         # RandomRenderer.main()
-        RainbowRenderer.main()
-        #NoiseRenderer.main() 
+        #RainbowRenderer.main()
+        NoiseRenderer.main() 
     finally:
         pygame.quit()
