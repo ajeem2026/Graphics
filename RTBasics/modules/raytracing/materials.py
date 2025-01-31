@@ -16,6 +16,7 @@ class Material(object):
         self.shine = shine
         self.specCoeff = specCoeff
 
+#You can change these to get normal? But prof leaves this calcualtions to the rayTracer (glorified struct)
     def getAmbient(self):
         """Getter method for ambient color."""
         return self.ambient

@@ -1,5 +1,7 @@
 from ..utils.vector import normalize, vec
 
+#Rays here are just glorified struct 
+#Rays always normalize their direction 
 class Ray(object):
     def __init__(self, position, direction):
         self.position = vec(position)
@@ -11,6 +13,9 @@ class Ray(object):
     def __str__(self):
         return repr(self)
     
+    #Given a scalar t, what would that position be? 
+    #Calculations gives us scalar T--> NOT THE ACTUAL POSITION
+    #We use this to find position 
     def getPositionAt(self, distance):
         return self.position + distance * self.direction
 
