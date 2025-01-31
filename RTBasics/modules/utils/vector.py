@@ -4,6 +4,7 @@ Author: Liz Matthews, Geoff Matthews
 import numpy as np
 from math import sqrt
 
+#Helpful functions prof found useful when she designed the code 
 def magnitude(vector):    
     """Give the magnitude of a vector."""
     return np.linalg.norm(vector)
