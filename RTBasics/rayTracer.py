@@ -2,9 +2,9 @@
 Author: Abid Jeem, Liz Matthews, Geoff Matthews
 """
 
-#Prof recommedation: Keep calculation in RayTracer (not in the other classes)
+# Prof recommedation: Keep calculation in RayTracer (not in the other classes)
 
-#Its going to seem overengieeried now
+# Its going to seem overengineered now
 import numpy as np
 import pygame
 
@@ -16,20 +16,20 @@ from modules.utils.vector import vec
 class RayTracer(ProgressiveRenderer):
     def __init__(self, width=800, height=600, show=ShowTypes.PerColumn):
         super().__init__(width, height, show=show)
-        self.fog = vec(0.7,0.9,1.0)
+        self.fog = vec(0.7, 0.9, 1.0)
         self.scene = Scene(aspect=width/height, fov=45)
-    
-    #eventually to be used recursively
+
+    # eventually to be used recursively
     def getColorR(self, ray):
         # Start with zero color
         color = np.zeros((3))
-        
+
         # Find any objects it collides with and calculate color
 
         # Return fog if doesn't hit anything
         return self.fog
 
-#Calculates x% and y% along the pixel
+# Calculates x% and y% along the pixel
     def getColor(self, x, y):
         # Calculate the percentages for x and y
         xPercent = 0
@@ -42,11 +42,12 @@ class RayTracer(ProgressiveRenderer):
         color = self.getColorR(cameraRay)
 
         # Fixing any NaNs in numpy, clipping to 0, 1.
-        #Prevents crashing 
-        color = np.nan_to_num(np.clip(color, 0, 1), 0) 
-            
+        # Prevents crashing
+        color = np.nan_to_num(np.clip(color, 0, 1), 0)
+
         return color
-    
+
+
 # Calls the 'main' function when this script is executed
 if __name__ == '__main__':
     RayTracer.main("Ray Tracer Basics")
