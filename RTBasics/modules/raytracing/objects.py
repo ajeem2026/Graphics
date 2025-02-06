@@ -15,7 +15,7 @@ class Object3D(ABC):
     def __init__(self, pos, material):
 
         # Each object has a its own position and material its made of
-#All attributes are stored in a numpy array
+        # All attributes are stored in a numpy array
         self.position = np.array(pos)
         self.material = material
 
@@ -57,14 +57,17 @@ class Object3D(ABC):
     def getNormal(self, intersection):
         """Find the normal for the given object. Must override."""
         pass
+
+
 class Sphere(Object3D):
     "Initalizing and overrding abstract class methods for Sphere."
-    def __init__(self, pos, material,radius):
+
+    def __init__(self, pos, material, radius):
         super().__init__(vec(pos), material)
-        self.radius=radius
-    
+        self.radius = radius
+
     def intersect(self, ray):
-        """Plane Intersection calculation"""
+        """Sphere Intersection calculation"""
 
         # let radius be r
         r = self.radius
@@ -77,18 +80,17 @@ class Sphere(Object3D):
         p = ray.position - self.position
 
         # a = <v,v>
-        a = np.dot(v, v)
+        a = 1
         # b= 2<p,v>
-        b = 2*np.dot(p, v)
+        b = 2* (p.dot(v))
         # c= <p,p> -r^2
-        c = np.dot(p, p) - r*r
+        c = p.dot(p) - r*r
 
         # Discriminant from quadratic equaiton
         discriminant = b*b-4*a*c
-
         # No roots case == no intersection
         if discriminant < 0:
-            return None
+            return np.inf
 
         # Solving the quadratic formula to get our values of t'
 
@@ -96,20 +98,53 @@ class Sphere(Object3D):
         t2 = (-b+np.sqrt(discriminant))/(2*a)
 
         # We only care about positive values of t that aligns with viewport collisions
-        if t1 > 0:
+
+        if t1 > 0 and t2 > 0:
+            # return closest intersection
+            return min(t1, t2)
+        elif t1 > 0:
             return t1
         elif t2 > 0:
             return t2
         # We DONT care about negative values of t which means obj is behind camera
-        return None
-    
-    def getNormal(self,intersection):
-        #Normalization
+        return np.inf
+
+    def getNormal(self, intersection):
+        # Normalization
         return normalize(intersection-self.position)
-    
+
+
 class Plane(Object3D):
     "Initalizing and overrding abstract class methods for Plane."
-    
-    def __init__(self,pos,normal,material):
-        super().__init__(pos,material)
-        self.normal= normalize(vec(normal))
+
+    def __init__(self, pos, normal, material):
+        super().__init__(pos, material)
+        self.normal = normalize(vec(normal))
+
+    def intersect(self, ray):
+        """Plane Intersection calculation"""
+        # Formula to be implemented
+        # t = (q-p)*n/ v*n
+
+        # Let the ray advance along the direction of v which is to be
+        # parametrized by 't'
+        n = self.normal
+        v = ray.direction
+        denominator = np.dot(v, n)
+
+        # DEno can't be zero
+
+        if abs(denominator) > 1e-11:  # avoiding floating point error 
+            t = np.dot(self.position-ray.position, n)/denominator
+
+            if t > 0:
+                return t
+            else:
+                return None
+
+        return None
+
+    def getNormal(self, intersection):
+
+        # Consistnet for the entire surface of the plane
+        return self.normal
