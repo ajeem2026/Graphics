@@ -2,6 +2,8 @@ from ..utils.vector import normalize, vec
 
 #Rays here are just glorified struct 
 #Rays always normalize their direction 
+
+#Ray has Vector Properties: (Position & Direction)
 class Ray(object):
     def __init__(self, position, direction):
         self.position = vec(position)

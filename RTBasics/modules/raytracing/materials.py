@@ -19,15 +19,15 @@ class Material(object):
 #You can change these to get normal? But prof leaves this calcualtions to the rayTracer (glorified struct)
     def getAmbient(self):
         """Getter method for ambient color."""
-        return self.ambient
+        return vec(*self.ambient)
 
     def getDiffuse(self):
         """Getter method for diffuse color."""
-        return self.diffuse
+        return vec(*self.diffuse)
 
     def getSpecular(self):
         """Getter method for specular color."""
-        return self.specular
+        return vec(*self.specular)
 
     def getShine(self):
         """Getter method for shininess factor."""
