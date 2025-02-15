@@ -1,5 +1,5 @@
 """
-Author: Liz Matthews, Geoff Matthews
+Author: Abid Jeem, Liz Matthews, Geoff Matthews
 Noise manager class
 """
 
@@ -20,6 +20,9 @@ class NoiseMachine:
         self.octaveDilation = octaveDilation
         self.nvalues = nvalues
         self.values = np.linspace(minimum, maximum, nvalues)
+        
+    # ===============================================================
+    #Use these for 3d noise generation
         self.permutations = np.arange(0, nvalues, 1)
         np.random.seed(seed)
         np.random.shuffle(self.values)
@@ -28,12 +31,16 @@ class NoiseMachine:
     # One-dimensional noise
     def intNoise(self, i):
         return self.values[int(i) % self.nvalues]
+    
+
 
     def smerpNoise(self, x):
         a = self.intNoise(np.floor(x))
         b = self.intNoise(np.ceil(x))
         xFrac = x - np.floor(x)
         return smerp(a, b, xFrac)
+        
+         
 
     def noise(self, x):
         s = 0.0
@@ -48,7 +55,17 @@ class NoiseMachine:
         a = self.permutations[j % self.nvalues]
         b = self.permutations[(i + a) % self.nvalues]
         return self.values[b % self.nvalues]
-
+    
+    #================================================================
+     #TOdo: implement 3d noise
+    #Three-dimensional noise
+    def intNoise3d(self, i, j, k):
+        a= self.permutations[k% self.nvalues]
+        b= self.permutations[(j+a) % self.nvalues]
+        c= self.permutations[(i+b)% self.nvalues]
+        return self.values[c % self.nvalues]
+    #================================================================
+        
     def smerpNoise2d(self, x, y):
         """Smoothly interpolate given two dimensional points."""
         i = int(np.floor(x))
@@ -67,6 +84,73 @@ class NoiseMachine:
         nx1 = smerp(n01, n11, xFrac)
         # smerp along y
         return smerp(nx0, nx1, yFrac)
+    
+    #================================================================
+    
+    #Todo: implement smerpNoise3D()
+    
+    """
+    1. Just like 2D
+    2. Smerp between two 2D Smerps 
+    3. 7 Smerps in total 
+    """
+    
+    def smerpNoise3D(self, x, y, z):
+        """Smoothly interpolate given THREE dimensional points."""
+        
+        i = int(np.floor(x))
+        j = int(np.floor(y))
+        k = int(np.floor(z))
+        
+        xFrac = x-i
+        yFrac = y-j
+        zFrac = z-k
+
+        
+         #For each corner 
+         
+        n100 = self.intNoise3d(i+1,j,k)
+        n000 = self.intNoise3d(i,j,k)
+        n010 = self.intNoise3d(i,j+1,k)
+        n110 = self.intNoise3d(i+1,j+1,k)
+        n001 = self.intNoise3d(i,j,k+1)
+        n101 = self.intNoise3d(i+1,j,k+1)
+        n011 = self.intNoise3d(i,j+1,k+1)
+        n111 = self.intNoise3d(i+1,j+1,k+1)
+    
+    #================================================================
+        #Smerp on X axis
+        
+        """1. Obtain the corners with lattice
+           2. Assuming positive x to the right, positive y upward, positive z out of screen
+        """
+        #z=0 
+        nx00= smerp(n000, n100, xFrac) #y=0
+        nx10= smerp(n010, n110, xFrac) #y=1
+        
+        #SMerp on X axis again
+        
+        #z=1 
+        nx01= smerp(n001, n101, xFrac) #y=0
+        nx11= smerp(n011, n111, xFrac) #y=1
+    
+    #================================================================
+    
+        #Smerp on y
+        
+        #z=0
+        ny0= smerp(nx00, nx10, yFrac) #z=0
+        
+        #Smerp on y again 
+        
+        ny1= smerp(nx01, nx11, yFrac) #z=1
+        
+    #================================================================
+    
+        #Smerp along z
+        
+        return smerp(ny0, ny1, zFrac)
+      #================================================================
 
     def noise2d(self, x, y):
         """Cumulative noise at x and y using smerp."""
@@ -85,14 +169,10 @@ class NoiseMachine:
                                         xMod*self.octaveDilation**i,
                                         yMod*self.octaveDilation**i)/2**i
         return s*0.5
-
+    
     def smerpNoise2dTiled(self, x, y, xMod, yMod):
         """Smoothly interpolate given two dimensional points, tilable."""
-        i = int(np.floor(x))
-        j = int(np.floor(y))
-        xFrac = x-i
-        yFrac = y-j
-
+        
         # randoms at four corners:
         n00 = self.intNoise2d(i % xMod,     j % yMod)
         n10 = self.intNoise2d((i+1) % xMod,     j % yMod)
@@ -104,6 +184,9 @@ class NoiseMachine:
         nx1 = smerp(n01, n11, xFrac)
         # smerp along y
         return smerp(nx0, nx1, yFrac)
+    
+
+
 
 
 class NoisePatterns(object):
@@ -182,7 +265,7 @@ class NoisePatterns(object):
 
     # TODO: Create a fire() function
     
-    def fire(self, x, y, c1=COLORS["red"], c2=COLORS["yellow"], noiseStrength=0.8):
+    def fire(self, x, y, c1=COLORS["red"], c2=COLORS["yellow"], noiseStrength=0.6):
         """Cumulative noise at x and y using smerp, tilable."""
         y = y / 2
        
