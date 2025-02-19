@@ -13,6 +13,7 @@ from render import ProgressiveRenderer, ShowTypes
 
 from modules.raytracing.scene import Scene
 from modules.utils.vector import *
+from modules.raytracing.lights import *
 
 class RayTracer(ProgressiveRenderer):
     def __init__(self, width=800, height=600, show=ShowTypes.PerColumn):
@@ -40,7 +41,7 @@ class RayTracer(ProgressiveRenderer):
         
         #Start with ambient color 
         
-        color = nearest_object.getAmbient()
+        color = nearest_object.getAmbient(collision)
         
         #For each light...
         for light in self.scene.lights: 
@@ -48,13 +49,23 @@ class RayTracer(ProgressiveRenderer):
             l_prime= light.getVectorToLight(collision)
             
         # If the light is not shadowed by another object
-            if self.scene.shadowed(nearest_object, Ray(light.position,-l)) < light.getDistance(collision):
-                continue
+           # if self.scene.shadowed(nearest_object, Ray(light.position,-l),light) < light.getDistance(collision):
+                #continue
+        
+            if isinstance(light, PointLight):
+                shadow_ray = Ray(collision, l)
+                if self.scene.shadowed(nearest_object, shadow_ray, light):
+                    continue 
+
+            elif isinstance(light, DirectionLight):
+                shadow_ray = Ray(collision, -light.direction)  
+                if self.scene.shadowed(nearest_object, shadow_ray, light):
+                    continue  
         
     # Multiply the diffuse color, minus the current color, by the diffuse cosine value, and add to the current color
             diffuse_cosine= np.dot(n, l)
             if diffuse_cosine > 0:
-                color += (diffuse_cosine)*(nearest_object.getDiffuse()-color)
+                color += (diffuse_cosine)*(nearest_object.getDiffuse(collision)-color)
     # Multiply the specular color, minus the current color, by the specular value, multiply by the specular coefficient, and add to the current color
         #Reflection vector, r = l - (l- (n * l) n )
         
@@ -64,7 +75,7 @@ class RayTracer(ProgressiveRenderer):
             specular_angle= np.dot(r,e)
             
             if specular_angle > 0:
-                s_color= nearest_object.getSpecular()
+                s_color= nearest_object.getSpecular(collision)
                 s_coefficient= nearest_object.getSpecularCoefficient()
                 s_value=nearest_object.getShine()
                 
