@@ -95,7 +95,7 @@ class NoiseMachine:
     3. 7 Smerps in total 
     """
     
-    def smerpNoise3D(self, x, y, z):
+    def smerpNoise3d(self, x, y, z):
         """Smoothly interpolate given THREE dimensional points."""
         
         i = int(np.floor(x))
@@ -159,6 +159,19 @@ class NoiseMachine:
             s += self.smerpNoise2d(x*self.octaveDilation**i,
                                    y*self.octaveDilation**i)/2**i
         return s*0.5
+    
+    #================================================================
+    
+    def noise3d(self, x, y,z):
+        """Cumulative noise at x,y and z using smerp."""
+        s = 0.0
+        for i in range(self.noctaves):
+            s += self.smerpNoise3d(x*self.octaveDilation**i,
+                                   y*self.octaveDilation**i,
+                                   z*self.octaveDilation**i)/2**i
+        return s*0.5
+    
+    #================================================================
 
     def noise2dTiled(self, x, y, xMod, yMod):
         """Cumulative noise at x and y using smerp, tilable."""
@@ -173,6 +186,11 @@ class NoiseMachine:
     def smerpNoise2dTiled(self, x, y, xMod, yMod):
         """Smoothly interpolate given two dimensional points, tilable."""
         
+        i = int(np.floor(x))
+        j = int(np.floor(y))
+        xFrac = x-i
+        yFrac = y-j
+        
         # randoms at four corners:
         n00 = self.intNoise2d(i % xMod,     j % yMod)
         n10 = self.intNoise2d((i+1) % xMod,     j % yMod)
@@ -185,7 +203,6 @@ class NoiseMachine:
         # smerp along y
         return smerp(nx0, nx1, yFrac)
     
-
 
 
 
@@ -215,6 +232,15 @@ class NoisePatterns(object):
                c1=COLORS["blue"], c2=COLORS["white"]):
         noise = self.nms[self.noiseId].noise2d(x, y)
         return lerp(c1, c2, noise)
+    
+    
+    #3d Clouds 
+    
+    def clouds3D(self, x, y,z,
+               c1=COLORS["blue"], c2=COLORS["white"]):
+        noise = self.nms[self.noiseId].noise3d(x, y,z)
+        return lerp(c1, c2, noise)
+    
 
     # TODO: Create a cloudsTiled() function
 
@@ -241,6 +267,25 @@ class NoisePatterns(object):
         
         return lerp(c1, c2, normalised)
     
+    #3d marble 
+    
+    def marble3D(self, x, y,z, c1=COLORS["marble1"], c2=COLORS["marble2"], noiseStrength=0.2):
+        """Cumulative noise at x and y using smerp, tilable."""
+        
+        #At a given x and y, obtain a noise2d() value
+        noise = self.nms[self.noiseId].noise3d(x,y,z)
+        
+        #Then calculate the sine of x + y + noise * noiseStrength * scale to obtain a value between -1 and +1
+        
+        sine= np.sin(x + y +z+ noise * noiseStrength * self.scale)
+        
+        #Adjust the result to be a value between 0 and 1 and use the value to linearly interpolate between c1 and c2
+        
+        normalised= (sine+1)/2
+        
+        return lerp(c1, c2, normalised)
+    
+    
     # TODO: Create a wood() function
     
     def wood(self, x, y, c1=COLORS["wood1"], c2=COLORS["wood2"], noiseStrength=0.2):
@@ -251,6 +296,36 @@ class NoisePatterns(object):
         #Calculate the radius value as the square-root of x squared plus y squared, then multiply by 10
         
         radius= np.sqrt(x**2 + y**2)*10
+        
+        #Then calculate the sine of radius + noise * noiseStrength * scale to obtain a value between -1 and +1
+        
+        sine= np.sin(radius+ noise * noiseStrength * self.scale)
+        
+        #Adjust the result to be a value between 0 and 1 and use the value to linearly interpolate between c1 and c2
+        
+        normalised= (sine+1)/2
+        
+        return lerp(c1, c2, normalised)
+    
+    #3d wood
+    
+    def wood3D(self, x, y,z,  c1=COLORS["wood1"], c2=COLORS["wood2"], axis=2, noiseStrength=0.2):
+        """Cumulative noise at x and y using smerp, tilable."""
+        #At a given x and y, obtain a noise2d() value
+        noise = self.nms[self.noiseId].noise2d(x,y,z)
+        
+        #Calculate the radius value as the square-root of x squared plus y squared, then multiply by 10
+        #Use the axis parameter to detemine about which axis the wood rings radiate 
+        
+        #radiate about 0,1, and 2: 
+        
+        if axis == 0:
+            radius = np.sqrt((y**2)+ (z**2)) *10
+        elif axis == 1:
+            radius = np.sqrt((x**2)+ (z**2)) *10
+        else:
+            radius = np.sqrt((x**2)+ (y**2)) *10
+        
         
         #Then calculate the sine of radius + noise * noiseStrength * scale to obtain a value between -1 and +1
         
