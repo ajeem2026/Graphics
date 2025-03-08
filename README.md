@@ -1,6 +1,6 @@
 # Ray Tracing Project
 
-**Authors:** Abid Jeem, Liz Matthews, Geoff Matthews
+**Authors:** Abid Jeem
 
 ## Overview
 
