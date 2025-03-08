@@ -70,5 +70,5 @@ This repository contains a basic **ray tracer** in Python. It supports:
 
 Here is the final rendered image:
 
-![Final Render](Abid_RayTrace_Final/images/Abid_RayTracing_Final.png)
+![Final Render](/images/Abid_RayTracing_Final.png)
 
