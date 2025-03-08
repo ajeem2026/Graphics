@@ -17,7 +17,7 @@ This repository contains a basic **ray tracer** in Python. It supports:
 <summary>Final Render Example</summary>
 
 
-![Final Scene](images/Abid_RayTracing_Final.png)
+![Final Scene](Abid_RayTrace_Final/images/Abid_RayTracing_Final.png)
 
 
 *Replace this sample with your own final rendered image.*
