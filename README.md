@@ -19,7 +19,6 @@ This repository contains a basic **ray tracer** in Python. It supports:
 ![Final Scene](Abid_RayTrace_Final/images/Abid_RayTracing_Final.png)
 
 
-
 ---
 
 ## Features
@@ -41,6 +40,7 @@ This repository contains a basic **ray tracer** in Python. It supports:
    - **Objects** each implement `intersect(...)` and `getNormal(...)`.
    - **Materials** can be plain color, 3D noise, or 2D textures.
 
+![Final Scene](Abid_QuiltRenderer/Abid_poster_FINISHED.jpeg)
 
 
 
