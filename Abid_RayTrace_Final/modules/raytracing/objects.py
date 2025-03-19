@@ -609,3 +609,72 @@ class EllipsoidTextured3D(Ellipsoid, Textured3D):
 
 # for extra credit ========================================
 
+class Disk(Plane):
+    def __init__(self, pos, normal, radius, thickness, material):
+        super().__init__(pos, normal, material)
+        self.radius = radius
+        self.thickness = thickness  # New attribute for thickness
+
+    def intersect(self, ray):
+        t = super().intersect(ray)
+        if t is None:
+            return None
+        
+        intersection = ray.position + t * ray.direction
+        distance_to_center = np.linalg.norm(intersection - self.position)
+        
+        # Ensure the intersection is within the disk's radius
+        if distance_to_center <= self.radius:
+            return t  
+        return None
+
+    
+#============================================
+class PlaneBumpMapped(PlaneTextured2D):
+    def __init__(self, pos, normal, bumpMaterial2D):
+        super().__init__(pos, normal, bumpMaterial2D)
+    
+    def getNormal(self, intersection):
+        # Get the base normal from the plane
+        baseNormal = super().getNormal(intersection)
+        
+        # Calculate UV coordinates
+        u, v = self.uvCoordinates(intersection)
+        
+        # We need to calculate tangent and bitangent vectors
+        # These are perpendicular to the normal and to each other
+        tangent = self._calculateTangent()
+        bitangent = np.cross(baseNormal, tangent)
+        
+        # For bump mapping, we need to sample the height map at slightly offset positions
+        # to compute an approximation of the gradient
+        epsilon = 0.00001
+        h = self.material.getBumpValue(u, v)
+        h_du = self.material.getBumpValue(u + epsilon, v)
+        h_dv = self.material.getBumpValue(u, v + epsilon)
+        
+        # Calculate the partial derivatives of the height field
+        du = (h_du - h) / epsilon
+        dv = (h_dv - h) / epsilon
+        
+        # Scale by bump strength
+        du *= self.material.bumpStrength
+        dv *= self.material.bumpStrength
+        
+        # Perturb the normal using the tangent space
+        perturbedNormal = baseNormal - du * tangent - dv * bitangent
+        
+        # Normalize the result
+        return normalize(perturbedNormal)
+    
+    def _calculateTangent(self):
+        # Calculate a tangent vector perpendicular to the normal
+        # This is arbitrary but consistent for a given normal
+        if abs(np.dot(np.array([1, 0, 0]), self.normal)) > 0.9:
+            # If normal is close to x-axis, use z-axis for reference
+            tangent = np.cross(self.normal, np.array([0, 0, 1]))
+        else:
+            # Otherwise use x-axis
+            tangent = np.cross(self.normal, np.array([1, 0, 0]))
+        
+        return normalize(tangent)
